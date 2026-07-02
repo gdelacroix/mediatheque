@@ -1,97 +1,52 @@
 <?php
+
+// ============================================================
+//  FRONT CONTROLLER
+//  Point d'entrée unique de l'application.
+//  Ce fichier ne contient aucune logique métier.
+//  Il lit l'action demandée et délègue au bon contrôleur.
+// ============================================================
+
+// Chargement de toutes les classes nécessaires
 require_once __DIR__ . '/classes/config.php';
 require_once __DIR__ . '/classes/DAO.class.php';
 require_once __DIR__ . '/classes/Article.class.php';
 require_once __DIR__ . '/classes/Empruntable.class.php';
 require_once __DIR__ . '/classes/Livre.class.php';
 require_once __DIR__ . '/classes/Dvd.class.php';
+require_once __DIR__ . '/controllers/ArticleController.class.php';
 
-use Mediatheque\ArticleDAO;
+use Mediatheque\Controller\ArticleController;
 
-$pdo      = getConnexion();
-$dao      = new ArticleDAO($pdo);
-$articles = $dao->findAll();
+// Connexion à la base, passée au contrôleur
+$pdo        = getConnexion();
+$controller = new ArticleController($pdo);
 
-require_once __DIR__ . '/includes/header.php';
-?>
+// Lecture de l'action demandée (liste par défaut)
+$action = $_GET['action'] ?? 'liste';
 
-<h2>Liste des articles</h2>
+// Routage : on délègue au contrôleur selon l'action
+switch ($action) {
+    case 'liste':
+        $controller->liste();
+        break;
 
-<?php if (isset($_GET['message'])): ?>
-    <div class="alerte alerte-succes">
-        <?= htmlspecialchars($_GET['message']) ?>
-    </div>
-<?php endif; ?>
+    case 'formulaire':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $controller->enregistrer();
+        } else {
+            $controller->formulaire();
+        }
+        break;
 
-<?php if (isset($_GET['erreur'])): ?>
-    <div class="alerte alerte-erreur">
-        <?= htmlspecialchars($_GET['erreur']) ?>
-    </div>
-<?php endif; ?>
+    case 'supprimer':
+        $controller->supprimer();
+        break;
 
-<?php if (empty($articles)): ?>
-    <p>Aucun article dans la médiathèque.</p>
-<?php else: ?>
-<table>
-    <thead>
-        <tr>
-            <th>Type</th>
-            <th>Description</th>
-            <th>Disponibilité</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($articles as $article): ?>
-        <tr>
-            <td>
-                <span class="badge badge-<?= $article->getType() ?>">
-                    <?= strtoupper($article->getType()) ?>
-                </span>
-            </td>
+    case 'emprunter':
+        $controller->emprunter();
+        break;
 
-            <td><?= htmlspecialchars($article->description()) ?></td>
-
-            <td>
-                <?php if ($article->isDisponible()): ?>
-                    <span class="dispo-oui">✔ Disponible</span>
-                <?php else: ?>
-                    <span class="dispo-non">✘ Emprunté</span>
-                <?php endif; ?>
-            </td>
-
-            <td>
-                <?php if ($article->isDisponible()): ?>
-                    <a class="btn btn-success"
-                       href="emprunter.php?id=<?= $article->getId() ?>&action=emprunter">
-                        Emprunter
-                    </a>
-                <?php else: ?>
-                    <a class="btn btn-warning"
-                       href="emprunter.php?id=<?= $article->getId() ?>&action=rendre">
-                        Rendre
-                    </a>
-                <?php endif; ?>
-
-                <a class="btn"
-                   href="formulaire.php?id=<?= $article->getId() ?>">
-                    Modifier
-                </a>
-
-                <a class="btn btn-danger"
-                   href="supprimer.php?id=<?= $article->getId() ?>"
-                   onclick="return confirm('Supprimer définitivement cet article ?');">
-                    Supprimer
-                </a>
-            </td>
-        </tr>
-    <?php endforeach; ?>
-    </tbody>
-</table>
-<?php endif; ?>
-
-<p style="margin-top:20px;">
-    <a class="btn" href="formulaire.php">+ Ajouter un article</a>
-</p>
-
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+    default:
+        $controller->liste();
+}
