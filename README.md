@@ -14,7 +14,12 @@ Vous pouvez naviguer dans l'historique du projet et vous positionner sur les dif
 *Initiation aux piliers de la POO et mise en place d'une persistance de données propre avec le pattern DAO.*
 * Concepts clés : Namespaces, Encapsulation (Getters/Setters), Héritage, Polymorphisme, Interfaces, DAO Générique (CRUD abstrait).
 * Tutoriel associé : PART1_TUTORIEL_POO.md
-* 📌 **Commit de fin de partie** : `0f55b95b449b8f05e19f22b00f5c5211a1f98dc9` (ex: `git checkout 0f55b95b449b8f05e19f22b00f5c5211a1f98dc9`)
+* 📌 **Commit de fin de partie** : `0f55b95b449b8f05e19f22b00f5c5211a1f98dc9` 
+Ex: 
+```bash
+git checkout 0f55b95b449b8f05e19f22b00f5c5211a1f98dc9
+```
+
 
 ### 🏗️ Partie 2 : Architecture MVC (À venir)
 *Refactoring complet de l'application pour séparer la logique métier de l'affichage.*
@@ -44,8 +49,9 @@ Pour tester l'état actuel du projet (Fin de la Partie 1), suivez ces étapes :
 
 ### 2. Clonage et configuration
 1. Clonez ce dépôt dans votre dossier de publication (www/ pour Wamp, htdocs/ pour XAMPP) :
+```bash
    git clone https://github.com/votre-compte/mediatheque.git
-   
+```
 2. Démarrez votre serveur local et rendez-vous sur http://localhost/phpmyadmin.
 3. Créez une base de données nommée mediatheque.
 4. Importez le fichier bdd_mediatheque.sql situé à la racine du projet pour initialiser la structure et le jeu de données.
