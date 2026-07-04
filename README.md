@@ -24,7 +24,12 @@ git checkout 0f55b95b449b8f05e19f22b00f5c5211a1f98dc9
 ### 🏗️ Partie 2 : Architecture MVC (À venir)
 *Refactoring complet de l'application pour séparer la logique métier de l'affichage.*
 * Concepts clés : Pattern Model-View-Controller, Routage (Front Controller), Clean Architecture, Séparation des responsabilités.
-* 📌 Commit de fin de partie : [Bientôt disponible]
+* 📌 Commit de fin de partie : 
+`e60b74da3f9fadad1d7798d393013086b5d9658c` 
+Ex: 
+```bash
+git checkout e60b74da3f9fadad1d7798d393013086b5d9658c
+```
 
 ### 🧪 Partie 3 : Tests Unitaires & Qualité (À venir)
 *Sécurisation du code de l'application par la mise en place de tests automatisés.*
@@ -62,7 +67,9 @@ http://localhost/mediatheque/index.php
 
 ---
 
-## 📂 Structure du projet (Partie 1)
+## 📂 Structure du projet
+
+### Partie 1 — POO & CRUD
 
 ```
 mediatheque/
@@ -82,4 +89,68 @@ mediatheque/
 
 ---
 
-💡 Pour comprendre en détail l'implémentation de chaque classe et la logique derrière le CRUD générique, veuillez vous référer au guide pas à pas : PART1_TUTORIEL_POO.md.
+### Partie 2 — Architecture MVC
+ 
+```
+mediatheque/
+├── bdd_mediatheque.sql          # Inchangé
+├── index.php                    # Front Controller : point d'entrée unique,
+│                                # lit ?action= et délègue au Controller
+├── controllers/
+│   └── ArticleController.class.php  # Chef d'orchestre : reçoit les requêtes,
+│                                    # appelle le Model, transmet aux Views
+├── views/
+│   ├── layout/
+│   │   ├── header.php           # En-tête HTML commune (déplacée depuis includes/)
+│   │   └── footer.php           # Pied de page HTML commun
+│   └── article/
+│       ├── liste.php            # Vue : affichage de la liste des articles
+│       └── formulaire.php       # Vue : formulaire d'ajout et de modification
+└── classes/                     # MODEL — inchangé depuis la Partie 1
+    ├── config.php
+    ├── DAO.class.php
+    ├── Article.class.php
+    ├── Empruntable.class.php
+    ├── Livre.class.php
+    └── Dvd.class.php
+```
+ 
+> 💡 **Ce qui change entre Partie 1 et Partie 2**
+>
+> Le dossier `classes/` (le **Model**) reste **identique** : les classes métier et d'accès aux données n'ont pas besoin d'être modifiées.
+> Ce qui change, c'est que la logique applicative quitte les pages PHP pour rejoindre le **Controller**, et que le HTML pur est isolé dans les **Views**.
+ 
+---
+ 
+## 🧭 Flux d'une requête en Partie 2 (MVC)
+ 
+```
+Navigateur
+    │
+    │  GET index.php?action=liste
+    ▼
+index.php (Front Controller)
+    │  lit $_GET['action'] → 'liste'
+    │  instancie ArticleController
+    ▼
+ArticleController::liste()          ← CONTROLLER
+    │  appelle $this->dao->findAll()
+    ▼
+ArticleDAO::findAll()               ← MODEL
+    │  exécute SELECT * FROM article
+    │  retourne un tableau d'objets Livre / Dvd
+    ▼
+ArticleController::render('article/liste', $donnees)
+    │  extrait les variables ($articles, $message...)
+    ▼
+views/article/liste.php             ← VIEW
+    │  affiche le tableau HTML
+    ▼
+Navigateur reçoit la page HTML
+```
+ 
+---
+ 
+💡 Pour comprendre en détail chaque étape de construction, référez-vous aux tutoriels associés :
+- **Partie 1** → `PART1_TUTORIEL_POO.md`
+- **Partie 2** → `PART2_TUTORIEL_MVC.md`
