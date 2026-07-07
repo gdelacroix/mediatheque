@@ -21,7 +21,7 @@ git checkout 0f55b95b449b8f05e19f22b00f5c5211a1f98dc9
 ```
 
 
-### 🏗️ Partie 2 : Architecture MVC (À venir)
+### 🏗️ Partie 2 : Architecture MVC 
 *Refactoring complet de l'application pour séparer la logique métier de l'affichage.*
 * Concepts clés : Pattern Model-View-Controller, Routage (Front Controller), Clean Architecture, Séparation des responsabilités.
 * 📌 Commit de fin de partie : 
@@ -31,9 +31,9 @@ Ex:
 git checkout e60b74da3f9fadad1d7798d393013086b5d9658c
 ```
 
-### 🧪 Partie 3 : Tests Unitaires & Qualité (À venir)
+### 🧪 Partie 3 : Tests Unitaires & Qualité 
 *Sécurisation du code de l'application par la mise en place de tests automatisés.*
-* Concepts clés : PHPUnit, Mocking, Test-Driven Development (TDD), Assertions.
+* Concepts clés : PHPUnit, Mocking, Test-Driven Development (TDD), Assertions, GitHub Actions.
 * 📌 Commit de fin de partie : [Bientôt disponible]
 
 ### 🐳 Partie 4 : Containerisation avec Docker (À venir)
@@ -157,6 +157,4 @@ Navigateur reçoit la page HTML
 - **Partie 3** → `PART3_TUTORIEL_PHPUNIT.md`
 
 
-```markdown
 ![PHPUnit Tests](https://github.com/gdelacroix/mediatheque/actions/workflows/phpunit.yml/badge.svg)
-```
