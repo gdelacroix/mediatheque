@@ -154,3 +154,9 @@ Navigateur reçoit la page HTML
 💡 Pour comprendre en détail chaque étape de construction, référez-vous aux tutoriels associés :
 - **Partie 1** → `PART1_TUTORIEL_POO.md`
 - **Partie 2** → `PART2_TUTORIEL_MVC.md`
+- **Partie 3** → `PART3_TUTORIEL_PHPUNIT.md`
+
+
+```markdown
+![PHPUnit Tests](https://github.com/gdelacroix/mediatheque/actions/workflows/phpunit.yml/badge.svg)
+```

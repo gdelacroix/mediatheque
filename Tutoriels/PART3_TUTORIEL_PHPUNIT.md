@@ -1520,7 +1520,7 @@ La commande finale. `--testdox` affiche le résultat de chaque test sous forme d
 ### Pousser le workflow et observer le résultat
 
 ```bash
-git add .github/workflows/phpunit.yml
+git add .
 git commit -m "Ajout du workflow GitHub Actions PHPUnit"
 git push
 ```
@@ -1590,24 +1590,3 @@ C'est ce badge qu'on voit sur les dépôts open source professionnels. Il montre
 
 ---
 
-## Auto-évaluation
-
-| Question | Étape |
-|---|---|
-| Qu'est-ce qu'un test unitaire ? Pourquoi en écrire ? | 0 |
-| Quelles sont les 3 étapes du cycle TDD ? | 0 |
-| À quoi sert Composer ? Quelle est la différence entre `require` et `require-dev` ? | 1 |
-| Que contient `vendor/` et pourquoi ne pas le versionner ? | 2 |
-| À quoi sert `phpunit.xml` ? Et `init.php` ? | 3 |
-| Quelle est la différence entre `assertEquals` et `assertNotEquals` ? | 5 |
-| Que signifie un ÉCHEC de `assertNotEquals` ? Est-ce une mauvaise nouvelle ? | 5 |
-| Comment tester qu'une méthode lève bien une exception ? | 6 |
-| À quoi sert `setUp()` dans une classe de test ? | 6 |
-| Pourquoi tester les cas limites (valeur vide, valeur invalide...) ? | 8 |
-| Pourquoi ne peut-on pas tester la DAO avec une vraie base de données ? | 10 |
-| Qu'est-ce qu'un mock ? Quel problème résout-il ? | 10 |
-| Pourquoi a-t-on besoin de deux mocks (`$pdoMock` et `$stmtMock`) ? | 10 |
-| À quoi sert `willReturn()` ? | 10 |
-| Quelle est la différence entre `assertInstanceOf` et `assertNotInstanceOf` ? | 10 |
-| Que fait `--testdox` ? | 12 |
-| À quoi sert GitHub Actions dans ce contexte ? | 13 |
