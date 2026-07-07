@@ -35,7 +35,11 @@ git checkout e60b74da3f9fadad1d7798d393013086b5d9658c
 *Sécurisation du code de l'application par la mise en place de tests automatisés.*
 * Concepts clés : PHPUnit, Composer, Mocks (`createMock`, `willReturn`), TDD (cycle Rouge/Vert/Refactor), Assertions (`assertEquals`, `assertNotEquals`, `assertInstanceOf`, `expectException`), Intégration Continue (GitHub Actions).
 * Tutoriel associé : `PART3_TUTORIEL_PHPUNIT.md`
-* 📌 **Commit de fin de partie** : [Bientôt disponible]
+* 📌 **Commit de fin de partie** : `169c19ba649fe3f43fd18127ea0899571f43ad5a`
+Ex: 
+```bash
+git checkout 169c19ba649fe3f43fd18127ea0899571f43ad5a
+```
 
 ### 🐳 Partie 4 : Containerisation avec Docker (À venir)
 *Déploiement de l'environnement de développement complet dans des conteneurs isolés.*
