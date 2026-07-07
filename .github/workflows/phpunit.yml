@@ -1,0 +1,45 @@
+# Nom affiché dans l'interface GitHub Actions
+name: PHPUnit Tests
+
+# Déclencheurs : quand lancer ce workflow ?
+on:
+  push:
+    branches: [ main ]          # à chaque push sur la branche main
+  pull_request:
+    branches: [ main ]          # à chaque pull request vers main
+
+# Les jobs : ce qu'on veut faire
+jobs:
+
+  # Nom du job (libre, doit être en minuscules sans espaces)
+  tests:
+
+    # Type de machine virtuelle à utiliser
+    # ubuntu-latest = dernière version stable d'Ubuntu, gratuit sur GitHub
+    runs-on: ubuntu-latest
+
+    # Les étapes du job, exécutées dans l'ordre
+    steps:
+
+      # Étape 1 : récupérer le code du dépôt sur la machine virtuelle
+      # "actions/checkout" est une action officielle GitHub
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      # Étape 2 : installer PHP sur la machine virtuelle
+      # "shivammathur/setup-php" est une action communautaire très utilisée
+      - name: Installer PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          coverage: none          # on ne génère pas de rapport de couverture ici
+
+      # Étape 3 : installer PHPUnit et les autres dépendances via Composer
+      # --no-interaction : pas de questions interactives
+      # --prefer-dist : télécharge les archives plutôt que les sources (plus rapide)
+      - name: Installer les dépendances Composer
+        run: composer install --no-interaction --prefer-dist
+
+      # Étape 4 : lancer PHPUnit
+      - name: Lancer les tests PHPUnit
+        run: ./vendor/bin/phpunit --testdox
