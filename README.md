@@ -33,8 +33,9 @@ git checkout e60b74da3f9fadad1d7798d393013086b5d9658c
 
 ### 🧪 Partie 3 : Tests Unitaires & Qualité 
 *Sécurisation du code de l'application par la mise en place de tests automatisés.*
-* Concepts clés : PHPUnit, Mocking, Test-Driven Development (TDD), Assertions, GitHub Actions.
-* 📌 Commit de fin de partie : [Bientôt disponible]
+* Concepts clés : PHPUnit, Composer, Mocks (`createMock`, `willReturn`), TDD (cycle Rouge/Vert/Refactor), Assertions (`assertEquals`, `assertNotEquals`, `assertInstanceOf`, `expectException`), Intégration Continue (GitHub Actions).
+* Tutoriel associé : `PART3_TUTORIEL_PHPUNIT.md`
+* 📌 **Commit de fin de partie** : [Bientôt disponible]
 
 ### 🐳 Partie 4 : Containerisation avec Docker (À venir)
 *Déploiement de l'environnement de développement complet dans des conteneurs isolés.*
@@ -114,11 +115,39 @@ mediatheque/
     ├── Livre.class.php
     └── Dvd.class.php
 ```
+
+---
+ 
+### Partie 3 — Tests Unitaires
+ 
+```
+mediatheque/
+├── (structure Partie 2 inchangée)
+│
+├── tests/
+│   ├── init.php                     # Chargement des classes avant les tests
+│   ├── LivreTest.php                # Tests unitaires de la classe Livre
+│   ├── DvdTest.php                  # Tests unitaires de la classe Dvd
+│   ├── ArticleValidationTest.php    # Tests de l'encapsulation (setters/validation)
+│   ├── PolymorphismeTest.php        # Tests du polymorphisme par héritage et interface
+│   └── ArticleDAOTest.php           # Tests de la DAO avec mocks (sans base de données)
+│
+├── .github/
+│   └── workflows/
+│       └── phpunit.yml              # Workflow GitHub Actions (CI automatique)
+│
+├── composer.json                    # Dépendances du projet (PHPUnit en require-dev)
+├── composer.lock                    # Versions exactes installées (versionné)
+├── phpunit.xml                      # Configuration PHPUnit
+└── vendor/                          # Dépendances installées par Composer (non versionné)
+```
  
 > 💡 **Ce qui change entre Partie 1 et Partie 2**
 >
 > Le dossier `classes/` (le **Model**) reste **identique** : les classes métier et d'accès aux données n'ont pas besoin d'être modifiées.
 > Ce qui change, c'est que la logique applicative quitte les pages PHP pour rejoindre le **Controller**, et que le HTML pur est isolé dans les **Views**.
+
+> 💡 **Ce qui change entre Partie 2 et Partie 3 :** aucun fichier de l'application n'est modifié. On ajoute uniquement l'infrastructure de tests : le dossier `tests/`, les fichiers de configuration Composer et PHPUnit, et le workflow GitHub Actions.
  
 ---
  
@@ -148,6 +177,19 @@ views/article/liste.php             ← VIEW
     ▼
 Navigateur reçoit la page HTML
 ```
+ 
+--- 
+
+## 🧪 Couverture des tests en Partie 3
+ 
+| Fichier de test | Classes testées | Nb de tests |
+|---|---|---|
+| `LivreTest.php` | `Livre` | 9 |
+| `DvdTest.php` | `Dvd` | 6 |
+| `ArticleValidationTest.php` | `Article` (via Livre) | 9 |
+| `PolymorphismeTest.php` | `Livre`, `Dvd`, `Empruntable` | 5 |
+| `ArticleDAOTest.php` | `ArticleDAO` (avec mocks PDO) | 10 |
+| **Total** | | **43 tests** |
  
 ---
  
