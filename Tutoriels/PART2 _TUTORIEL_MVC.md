@@ -1,7 +1,9 @@
 # Tutoriel MVC en PHP — Refactoring de la Médiathèque
 
 **Prérequis :** avoir terminé le tutoriel POO. L'application médiathèque fonctionne.
+
 **Objectif :** transformer le projet existant en architecture MVC, fichier par fichier, en comprenant pourquoi chaque déplacement de code est justifié.
+
 **Durée :** une journée.
 
 > Ce tutoriel est un **refactoring** : on ne repart pas de zéro. On réorganise le code existant. À la fin, l'application fait exactement la même chose qu'avant — mais son code est mieux découpé.

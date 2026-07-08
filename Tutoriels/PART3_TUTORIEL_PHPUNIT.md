@@ -2,7 +2,9 @@
 ## Partie 3 — Projet Médiathèque
 
 **Prérequis :** avoir terminé la Partie 2 (architecture MVC). L'application médiathèque fonctionne.
+
 **Objectif :** écrire des tests automatisés pour les classes du projet, comprendre ce qu'on teste et pourquoi, et lire correctement les résultats.
+
 **Durée :** une journée.
 
 ---

@@ -1,0 +1,98 @@
+# ─────────────────────────────────────────────────────────────────────
+#  Version du format docker-compose
+# ─────────────────────────────────────────────────────────────────────
+version: '3.8'
+
+# ─────────────────────────────────────────────────────────────────────
+#  SERVICES : les 3 conteneurs de l'application
+# ─────────────────────────────────────────────────────────────────────
+services:
+
+  # ── 1. Conteneur de l'application PHP ─────────────────────────────
+  app:
+    # "build: ." signifie : construire l'image à partir du Dockerfile
+    # situé dans le répertoire courant (la racine du projet)
+    build: .
+    container_name: mediatheque_app
+    ports:
+      # "hôte:conteneur" — le port 8080 de votre machine
+      # redirige vers le port 80 du conteneur Apache
+      - "8080:80"
+    volumes:
+      # Monte le répertoire courant dans le conteneur.
+      # Tout changement de fichier sur votre machine est
+      # immédiatement visible dans le conteneur (rechargement à chaud).
+      - .:/var/www/html
+    environment:
+      # Ces variables sont lues dans config.php via getenv()
+      DB_HOST: db          # "db" est le nom du service MySQL ci-dessous
+      DB_NAME: ${DB_NAME}  # La valeur vient du fichier .env
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - mediatheque_network
+    restart: unless-stopped
+
+  # ── 2. Conteneur MySQL ─────────────────────────────────────────────
+  db:
+    # On utilise l'image officielle MySQL 8.0 (pas besoin de Dockerfile)
+    image: mysql:8.0
+    container_name: mediatheque_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      # Volume nommé pour la persistance des données.
+      # Sans ça, toutes les données seraient perdues à l'arrêt du conteneur.
+      - db_data:/var/lib/mysql
+      # Script SQL exécuté automatiquement à la première création de la BDD.
+      # C'est notre fichier d'initialisation !
+      - ./bdd_mediatheque.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      # Docker attend que MySQL soit vraiment prêt avant de démarrer "app"
+      # (depends_on avec condition: service_healthy)
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mediatheque_network
+    restart: unless-stopped
+
+  # ── 3. Conteneur phpMyAdmin ────────────────────────────────────────
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: mediatheque_phpmyadmin
+    environment:
+      # PMA_HOST doit correspondre au nom du service MySQL ("db")
+      PMA_HOST: db
+      PMA_USER: ${DB_USER}
+      PMA_PASSWORD: ${DB_PASSWORD}
+    ports:
+      # phpMyAdmin accessible sur http://localhost:8081
+      - "8081:80"
+    depends_on:
+      - db
+    networks:
+      - mediatheque_network
+    restart: unless-stopped
+
+# ─────────────────────────────────────────────────────────────────────
+#  VOLUMES : stockage persistant des données MySQL
+#  Sans ce volume, les données sont perdues à chaque docker compose down
+# ─────────────────────────────────────────────────────────────────────
+volumes:
+  db_data:
+
+# ─────────────────────────────────────────────────────────────────────
+#  RÉSEAU : les 3 conteneurs communiquent entre eux sur ce réseau interne
+#  Depuis l'extérieur, seuls les ports 8080 et 8081 sont accessibles
+# ─────────────────────────────────────────────────────────────────────
+networks:
+  mediatheque_network:
+    driver: bridge

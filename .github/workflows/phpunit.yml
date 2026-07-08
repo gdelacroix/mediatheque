@@ -1,45 +1,73 @@
-# Nom affiché dans l'interface GitHub Actions
-name: PHPUnit Tests
+name: CI — Tests & Docker
 
-# Déclencheurs : quand lancer ce workflow ?
 on:
   push:
-    branches: [ main ]          # à chaque push sur la branche main
+    branches: [ main ]
   pull_request:
-    branches: [ main ]          # à chaque pull request vers main
+    branches: [ main ]
 
-# Les jobs : ce qu'on veut faire
 jobs:
 
-  # Nom du job (libre, doit être en minuscules sans espaces)
-  tests:
-
-    # Type de machine virtuelle à utiliser
-    # ubuntu-latest = dernière version stable d'Ubuntu, gratuit sur GitHub
+  # ── Job 1 : Tests unitaires (rapides, sans Docker) ────────────────
+  tests-unitaires:
     runs-on: ubuntu-latest
-
-    # Les étapes du job, exécutées dans l'ordre
     steps:
-
-      # Étape 1 : récupérer le code du dépôt sur la machine virtuelle
-      # "actions/checkout" est une action officielle GitHub
       - name: Récupérer le code
         uses: actions/checkout@v4
 
-      # Étape 2 : installer PHP sur la machine virtuelle
-      # "shivammathur/setup-php" est une action communautaire très utilisée
       - name: Installer PHP 8.2
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
-          coverage: none          # on ne génère pas de rapport de couverture ici
+          coverage: none
 
-      # Étape 3 : installer PHPUnit et les autres dépendances via Composer
-      # --no-interaction : pas de questions interactives
-      # --prefer-dist : télécharge les archives plutôt que les sources (plus rapide)
       - name: Installer les dépendances Composer
         run: composer install --no-interaction --prefer-dist
 
-      # Étape 4 : lancer PHPUnit
-      - name: Lancer les tests PHPUnit
-        run: ./vendor/bin/phpunit --testdox
+      - name: Lancer les tests unitaires (avec mocks)
+        run: ./vendor/bin/phpunit --testdox --exclude-group integration
+
+  # ── Job 2 : Tests d'intégration (avec Docker) ────────────────────
+  tests-integration:
+    runs-on: ubuntu-latest
+    needs: tests-unitaires   # Ce job ne se lance que si les tests unitaires passent
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Créer le fichier .env pour les tests
+        run: |
+          echo "DB_ROOT_PASSWORD=root_ci_password" >> .env
+          echo "DB_NAME=mediatheque" >> .env
+          echo "DB_USER=ci_user" >> .env
+          echo "DB_PASSWORD=ci_password" >> .env
+
+      - name: Démarrer les conteneurs Docker
+        run: docker compose up -d --build
+
+      - name: Attendre que MySQL soit prêt
+        run: |
+          echo "Attente du démarrage de MySQL..."
+          sleep 20
+
+      - name: Lancer les tests d'intégration dans le conteneur
+        run: |
+          docker compose exec -T app composer install --no-interaction
+          docker compose exec -T app ./vendor/bin/phpunit tests/IntegrationTest.php --testdox
+
+      - name: Arrêter les conteneurs
+        if: always()   # S'exécute même si les tests échouent
+        run: docker compose down -v
+
+  # ── Job 3 : Vérifier que l'image Docker se build sans erreur ──────
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: tests-unitaires
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Vérifier que l'image se construit
+        run: docker build -t mediatheque-app .

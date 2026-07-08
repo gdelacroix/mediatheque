@@ -27,6 +27,9 @@ abstract class DAO
         return ($row !== false) ? $this->hydrate($row) : null;
     }
 
+
+    
+
     // ── READ : tous les enregistrements ────────────────────────
     public function findAll(): array
     {
