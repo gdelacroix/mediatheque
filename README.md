@@ -48,29 +48,81 @@ git checkout 169c19ba649fe3f43fd18127ea0899571f43ad5a
 
 ---
 
-## ⚙️ Installation et Lancement (Partie 1)
+## ⚙️ Installation et Lancement 
 
-Pour tester l'état actuel du projet (Fin de la Partie 1), suivez ces étapes :
-
-### 1. Prérequis
-* Un serveur local d'exécution : WampServer, MAMP ou XAMPP.
-* PHP 8.0 ou supérieur.
-* Le gestionnaire de base de données MySQL / phpMyAdmin.
-
-### 2. Clonage et configuration
-1. Clonez ce dépôt dans votre dossier de publication (www/ pour Wamp, htdocs/ pour XAMPP) :
+### Prérequis communs
+* Git
+* PHP 8.0 ou supérieur
+* WampServer, MAMP ou XAMPP (Parties 1, 2 et 3)
+* Docker Desktop (Partie 4)
+### 1. Cloner le dépôt
 ```bash
-   git clone https://github.com/votre-compte/mediatheque.git
+git clone https://github.com/gdelacroix/mediatheque.git
 ```
-2. Démarrez votre serveur local et rendez-vous sur http://localhost/phpmyadmin.
-3. Créez une base de données nommée mediatheque.
-4. Importez le fichier bdd_mediatheque.sql situé à la racine du projet pour initialiser la structure et le jeu de données.
-
-### 3. Accès à l'application
-Ouvrez votre navigateur et accédez à l'adresse suivante :
-http://localhost/mediatheque/index.php
-
+ 
+### 2. Se positionner sur la partie souhaitée
+Utilisez `git checkout` avec le commit correspondant (voir la feuille de route ci-dessus), ou restez sur `main` pour la version la plus récente.
+ 
+### 3. Lancement — Parties 1 et 2 (XAMPP / WAMP)
+ 
+1. Placez le dossier dans `www/` (WAMP) ou `htdocs/` (XAMPP)
+2. Ouvrez phpMyAdmin → importez `bdd_mediatheque.sql`
+3. Accédez à `http://localhost/mediatheque/index.php`
+### 4. Lancement des tests — Partie 3 (PHPUnit)
+ 
+> Composer doit être installé : `https://getcomposer.org/download/`
+ 
+```bash
+cd mediatheque
+composer install
+ 
+# Tous les tests
+./vendor/bin/phpunit
+ 
+# Avec le détail de chaque test
+./vendor/bin/phpunit --testdox
+ 
+# Un fichier de test spécifique
+./vendor/bin/phpunit tests/LivreTest.php
+```
+ 
+### 5. Lancement — Partie 4 (Docker)
+ 
+> Docker Desktop doit être installé et démarré : `https://www.docker.com/products/docker-desktop/`
+ 
+```bash
+cd mediatheque
+ 
+# Créer le fichier .env à partir du template
+cp .env.example .env
+# Remplir les valeurs dans .env avec votre éditeur
+ 
+# Démarrer les 3 conteneurs
+docker compose up -d
+ 
+# Vérifier que tout tourne
+docker compose ps
+```
+ 
+| Service | URL |
+|---|---|
+| Application PHP | `http://localhost:8080` |
+| phpMyAdmin | `http://localhost:8081` |
+| MySQL | port `3306` (accès interne) |
+ 
+```bash
+# Lancer les tests unitaires (sans Docker)
+./vendor/bin/phpunit --testdox
+ 
+# Lancer les tests d'intégration (dans le conteneur Docker)
+docker compose exec app ./vendor/bin/phpunit tests/IntegrationTest.php --testdox
+ 
+# Arrêter les conteneurs
+docker compose down
+```
+ 
 ---
+ 
 
 ## 📂 Structure du projet
 
@@ -154,6 +206,34 @@ mediatheque/
 > 💡 **Ce qui change entre Partie 2 et Partie 3 :** aucun fichier de l'application n'est modifié. On ajoute uniquement l'infrastructure de tests : le dossier `tests/`, les fichiers de configuration Composer et PHPUnit, et le workflow GitHub Actions.
  
 ---
+
+### Partie 4 — Containerisation Docker
+ 
+```
+mediatheque/
+├── (structure Partie 3 inchangée)
+│
+├── Dockerfile                       # Recette de l'image PHP+Apache+Composer
+├── docker-compose.yml               # Orchestration des 3 conteneurs
+├── .env                             # Variables d'environnement (non versionné)
+├── .env.example                     # Template des variables (versionné)
+├── .dockerignore                    # Fichiers exclus de l'image Docker
+│
+├── docker/
+│   └── apache.conf                  # Configuration Apache du conteneur
+│
+├── tests/
+│   ├── (tests unitaires inchangés)
+│   └── IntegrationTest.php          # Tests d'intégration (nécessitent Docker)
+│
+└── .github/
+    └── workflows/
+        └── phpunit.yml              # Mis à jour : 3 jobs (unitaires, intégration, build Docker)
+```
+ 
+> 💡 `classes/config.php` est le seul fichier applicatif modifié : il utilise désormais `getenv()` pour lire la configuration, ce qui le rend compatible XAMPP **et** Docker sans modification.
+ 
+---
  
 ## 🧭 Flux d'une requête en Partie 2 (MVC)
  
@@ -184,16 +264,43 @@ Navigateur reçoit la page HTML
  
 --- 
 
-## 🧪 Couverture des tests en Partie 3
+## 🧪 Couverture des tests
  
-| Fichier de test | Classes testées | Nb de tests |
+### Tests unitaires (Partie 3) — sans base de données, avec mocks
+ 
+| Fichier de test | Classes testées | Tests |
 |---|---|---|
 | `LivreTest.php` | `Livre` | 9 |
 | `DvdTest.php` | `Dvd` | 6 |
 | `ArticleValidationTest.php` | `Article` (via Livre) | 9 |
 | `PolymorphismeTest.php` | `Livre`, `Dvd`, `Empruntable` | 5 |
-| `ArticleDAOTest.php` | `ArticleDAO` (avec mocks PDO) | 10 |
-| **Total** | | **43 tests** |
+| `ArticleDAOTest.php` | `ArticleDAO` (mocks PDO) | 10 |
+| **Sous-total** | | **39 tests** |
+ 
+### Tests d'intégration (Partie 4) — avec Docker et vraie base de données
+ 
+| Fichier de test | Ce qui est testé | Tests |
+|---|---|---|
+| `IntegrationTest.php` | Connexion PHP→MySQL, table, données, CRUD réel | 5 |
+| **Total général** | | **44 tests** |
+ 
+---
+ 
+## 🔄 Pipeline CI/CD (GitHub Actions — Partie 4)
+ 
+```
+git push
+    │
+    ├─► Job 1 : Tests unitaires (ubuntu, sans Docker)
+    │       └── ./vendor/bin/phpunit (mocks uniquement)
+    │
+    ├─► Job 2 : Tests d'intégration (si Job 1 ✅)
+    │       └── docker compose up -d
+    │       └── docker compose exec app ./vendor/bin/phpunit tests/IntegrationTest.php
+    │
+    └─► Job 3 : Docker build (si Job 1 ✅)
+            └── docker build -t mediatheque-app .
+```
  
 ---
  
@@ -201,6 +308,7 @@ Navigateur reçoit la page HTML
 - **Partie 1** → `PART1_TUTORIEL_POO.md`
 - **Partie 2** → `PART2_TUTORIEL_MVC.md`
 - **Partie 3** → `PART3_TUTORIEL_PHPUNIT.md`
+- **Partie 4** → `PART4_TUTORIEL_DOCKER.md`
 
 
 ![PHPUnit Tests](https://github.com/gdelacroix/mediatheque/actions/workflows/phpunit.yml/badge.svg)
