@@ -299,6 +299,12 @@ FROM php:8.2-apache
 # ─────────────────────────────────────────────────────────────
 RUN docker-php-ext-install pdo pdo_mysql
 
+# unzip est requis par Composer pour extraire les packages
+# zip est requis par l'extension zip de PHP
+RUN apt-get update \
+    && apt-get install -y unzip \
+    && rm -rf /var/lib/apt/lists/*
+
 # On copie Composer depuis son image officielle
 # C'est la méthode recommandée : propre, toujours à jour
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -873,7 +879,7 @@ jobs:
         
       - name: Lancer les tests d'intégration
         run: docker compose exec -T app ./vendor/bin/phpunit tests/IntegrationTest.php --testdox
-        
+
       - name: Arrêter les conteneurs
         if: always()   # S'exécute même si les tests échouent
         run: docker compose down -v
