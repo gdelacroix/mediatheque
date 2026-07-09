@@ -11,6 +11,10 @@ FROM php:8.2-apache
 # ─────────────────────────────────────────────────────────────
 RUN docker-php-ext-install pdo pdo_mysql
 
+# On copie Composer depuis son image officielle
+# C'est la méthode recommandée : propre, toujours à jour
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 # ─────────────────────────────────────────────────────────────
 #  CONFIGURATION APACHE
 #  On active mod_rewrite (nécessaire pour les URL propres)

@@ -51,10 +51,11 @@ jobs:
           echo "Attente du démarrage de MySQL..."
           sleep 20
 
-      - name: Lancer les tests d'intégration dans le conteneur
-        run: |
-          docker compose exec -T app composer install --no-interaction
-          docker compose exec -T app ./vendor/bin/phpunit tests/IntegrationTest.php --testdox
+      - name: Installer les dépendances dans le conteneur
+        run: docker compose exec -T app composer install --no-interaction --prefer-dist
+        
+      - name: Lancer les tests d'intégration
+        run: docker compose exec -T app ./vendor/bin/phpunit tests/IntegrationTest.php --testdox
 
       - name: Arrêter les conteneurs
         if: always()   # S'exécute même si les tests échouent

@@ -299,6 +299,10 @@ FROM php:8.2-apache
 # ─────────────────────────────────────────────────────────────
 RUN docker-php-ext-install pdo pdo_mysql
 
+# On copie Composer depuis son image officielle
+# C'est la méthode recommandée : propre, toujours à jour
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 # ─────────────────────────────────────────────────────────────
 #  CONFIGURATION APACHE
 #  On active mod_rewrite (nécessaire pour les URL propres)
@@ -388,11 +392,6 @@ C'est le fichier central de l'étape. Il décrit les 3 conteneurs, comment ils c
 ### Créez `docker-compose.yml` à la racine du projet :
 
 ```yaml
-# ─────────────────────────────────────────────────────────────────────
-#  Version du format docker-compose
-# ─────────────────────────────────────────────────────────────────────
-version: '3.8'
-
 # ─────────────────────────────────────────────────────────────────────
 #  SERVICES : les 3 conteneurs de l'application
 # ─────────────────────────────────────────────────────────────────────
@@ -869,11 +868,12 @@ jobs:
           echo "Attente du démarrage de MySQL..."
           sleep 20
 
-      - name: Lancer les tests d'intégration dans le conteneur
-        run: |
-          docker compose exec -T app composer install --no-interaction
-          docker compose exec -T app ./vendor/bin/phpunit tests/IntegrationTest.php --testdox
-
+      - name: Installer les dépendances dans le conteneur
+        run: docker compose exec -T app composer install --no-interaction --prefer-dist
+        
+      - name: Lancer les tests d'intégration
+        run: docker compose exec -T app ./vendor/bin/phpunit tests/IntegrationTest.php --testdox
+        
       - name: Arrêter les conteneurs
         if: always()   # S'exécute même si les tests échouent
         run: docker compose down -v
