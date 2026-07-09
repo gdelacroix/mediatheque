@@ -44,7 +44,12 @@ git checkout 169c19ba649fe3f43fd18127ea0899571f43ad5a
 ### 🐳 Partie 4 : Containerisation avec Docker (À venir)
 *Déploiement de l'environnement de développement complet dans des conteneurs isolés.*
 * Concepts clés : Docker, Docker Compose, isolation PHP/MySQL/Apache, reproductibilité de l'environnement.
-* 📌 Commit de fin de partie : [Bientôt disponible]
+* Tutoriel associé : `PART4_TUTORIEL_DOCKER.md`
+* 📌 **Commit de fin de partie** : `abae78f8a4c7c15354ffe36e24adb464b74f56c6`
+Ex: 
+```bash
+git checkout abae78f8a4c7c15354ffe36e24adb464b74f56c6
+```
 
 ---
 
@@ -226,7 +231,7 @@ mediatheque/
 │   ├── (tests unitaires inchangés)
 │   └── IntegrationTest.php          # Tests d'intégration (nécessitent Docker)
 │
-└── .github/
+.github/
     └── workflows/
         └── phpunit.yml              # Mis à jour : 3 jobs (unitaires, intégration, build Docker)
 ```
