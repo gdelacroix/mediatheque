@@ -173,7 +173,7 @@ docker compose version
 # Docker Compose version v2.x.x
 ```
 
-> **Important :** Docker Desktop doit être **lancé et en cours d'exécution** (baleine visible dans la barre des tâches) avant de taper des commandes Docker dans le terminal. Si Docker n't pas démarré, vous obtiendrez l'erreur `Cannot connect to the Docker daemon`.
+> **Important :** Docker Desktop doit être **lancé et en cours d'exécution** (baleine visible dans la barre des tâches) avant de taper des commandes Docker dans le terminal. Si Docker n'est pas démarré, vous obtiendrez l'erreur `Cannot connect to the Docker daemon`.
 
 ### Explorer l'interface graphique
 

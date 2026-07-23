@@ -1451,9 +1451,9 @@ name: PHPUnit Tests
 # Déclencheurs : quand lancer ce workflow ?
 on:
   push:
-    branches: [ main ]          # à chaque push sur la branche main
+    branches: [ main ]          # à chaque push sur la branche main, mettre [ main, develop ] si besoin aussi sur la branche develop
   pull_request:
-    branches: [ main ]          # à chaque pull request vers main
+    branches: [ main ]          # à chaque pull request vers main, mettre [ main, develop ] si besoin aussi sur la branche develop
 
 # Les jobs : ce qu'on veut faire
 jobs:
@@ -1589,6 +1589,71 @@ Ce qui donne dans le README :
 ```
 
 C'est ce badge qu'on voit sur les dépôts open source professionnels. Il montre immédiatement à n'importe qui qui visite le dépôt si le code est stable.
+
+---
+
+### ⚠️ GitHub Actions ne bloque pas le push — comprendre la limite
+
+Une question revient souvent : **"Si les tests échouent, est-ce que GitHub Actions annule le push et refuse le commit ?"**
+
+**Non.** Et c'est une distinction importante à bien comprendre.
+
+Le workflow GitHub Actions se déclenche **après** que le code est arrivé sur GitHub. Le push a déjà eu lieu, le commit est déjà là. GitHub Actions ne peut pas revenir en arrière. Ce qu'il fait, c'est **signaler** que quelque chose ne va pas.
+
+```
+git push (depuis le terminal)
+    │
+    ▼
+Code arrivé sur GitHub ← c'est définitif, le commit existe
+    │
+    ▼
+GitHub Actions démarre les tests
+    │
+    ├── ✅ Tests passent → commit marqué en vert, tout va bien
+    │
+    └── ❌ Tests échouent → commit marqué en rouge, email envoyé
+                            MAIS le code est déjà sur le dépôt
+```
+
+### Bloquer vraiment avec les Branch Protection Rules (pas nécessaire dans notre projet ou dans votre fil rouge)
+
+Pour aller plus loin et **interdire concrètement** l'intégration de code cassé, GitHub propose les **Branch Protection Rules** — une fonctionnalité distincte de GitHub Actions.
+
+**Comment les activer :**
+
+1. Allez dans **Settings** du dépôt → **Branches**
+2. Cliquez sur **Add branch protection rule**
+3. Entrez le nom de la branche à protéger (`main` ou `develop`)
+4. Cochez **"Require status checks to pass before merging"**
+5. Sélectionnez votre workflow PHPUnit dans la liste
+6. Sauvegardez
+
+**Ce que ça change concrètement :**
+
+```
+feature/ma-fonctionnalite
+        │
+        │  git push origin feature/ma-fonctionnalite
+        │  puis Pull Request vers main
+        ▼
+    ❌ Tests échouent sur la PR
+        │
+        │  GitHub bloque la fusion
+        ▼
+    Bouton "Merge" grisé → impossible de fusionner
+    tant que les tests ne repassent pas au vert
+```
+
+> **Remarque importante pour ceux qui travaillent en terminal :** les Branch Protection Rules bloquent les **fusions de Pull Requests** sur GitHub, pas les `git push` directs depuis le terminal. Pour bloquer aussi le push direct sur `main`, cochez également **"Restrict who can push to matching branches"** dans les mêmes paramètres. Ainsi, personne ne peut bypasser les tests en poussant directement sur `main` sans passer par une Pull Request.
+
+**En résumé :**
+
+| Situation | GitHub Actions seul | Avec Branch Protection |
+|---|---|---|
+| `git push` direct sur `main` | Signale l'erreur, ne bloque pas | Peut interdire le push direct |
+| Fusion d'une Pull Request | Signale l'erreur, ne bloque pas | **Bloque la fusion** |
+
+En équipe professionnelle, on combine toujours les deux : **GitHub Actions** pour détecter les problèmes automatiquement, **Branch Protection Rules** pour les rendre bloquants.
 
 ---
 
